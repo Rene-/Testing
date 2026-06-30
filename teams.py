@@ -61,8 +61,9 @@ TEAMS: list[Team] = [
     Team("Iran", 1500, "H"),
 ]
 
-# Host nation gets the home-advantage term in the model.
-HOST = "USA"
+# Host nations get the home-advantage term in the model.
+# The 2026 World Cup is co-hosted by the USA, Canada and Mexico.
+HOSTS = {"USA", "Canada", "Mexico"}
 
 
 def by_name(name: str) -> Team:

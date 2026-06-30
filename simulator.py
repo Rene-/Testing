@@ -12,7 +12,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 from model import MatchResult, PoissonModel
-from teams import HOST, TEAMS, Team
+from teams import HOSTS, TEAMS, Team
 
 
 @dataclass
@@ -72,7 +72,7 @@ def simulate_fixture(
 ) -> FixtureStats:
     """Simulate the same fixture ``n`` times to estimate its distribution."""
     stats = FixtureStats(home=home.name, away=away.name, n=n)
-    host_advantage = home.name == HOST
+    host_advantage = home.name in HOSTS
     for _ in range(n):
         result = model.simulate_match(
             home.name, home.rating, away.name, away.rating, home_is_host=host_advantage
@@ -120,7 +120,7 @@ def simulate_random_matches(
     batch = BatchStats()
     for _ in range(n):
         a, b = picker.sample(pool, 2)
-        host_advantage = a.name == HOST
+        host_advantage = a.name in HOSTS
         result = model.simulate_match(
             a.name, a.rating, b.name, b.rating, home_is_host=host_advantage
         )
