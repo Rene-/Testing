@@ -1,7 +1,7 @@
 # World Cup Match Simulator — Ratings-Based Poisson Model
 
 A small, dependency-free Python system that simulates World Cup matches using a
-**ratings-based Poisson model**, and runs **1000 simulations** by default.
+**ratings-based Poisson model**, and runs **10,000 simulations** by default.
 
 ## The model
 
@@ -40,11 +40,14 @@ are exposed as constructor arguments so you can re-calibrate freely.
 Requires only Python 3.10+ (standard library — no installs).
 
 ```bash
-# Simulate one fixture 1000 times: win/draw/loss probabilities + scorelines
-python3 main.py --home Argentina --away France --runs 1000
+# Simulate one fixture 10,000 times: win/draw/loss probabilities + scorelines
+python3 main.py --home Argentina --away France
 
-# Simulate 1000 random matchups across the field: batch statistics
-python3 main.py --batch --runs 1000
+# Simulate 10,000 random matchups across the field: batch statistics
+python3 main.py --batch
+
+# Change the simulation count
+python3 main.py --home Argentina --away France --runs 1000
 
 # Reproducible run
 python3 main.py --home Brazil --away Ghana --seed 42
@@ -56,14 +59,14 @@ python3 main.py --list-teams
 ### Example output
 
 ```
-Ratings-based Poisson model  —  1000 simulations
+Ratings-based Poisson model  —  10000 simulations
 Argentina (rating 1886) vs France (rating 1859)
 --------------------------------------------------------
-Argentina win                39.1%  (391)
-Draw                         24.9%  (249)
-France win                   36.0%  (360)
+Argentina win                38.4%  (3841)
+Draw                         26.2%  (2617)
+France win                   35.4%  (3542)
 --------------------------------------------------------
-Avg goals: Argentina 1.34  -  1.28 France
+Avg goals: Argentina 1.39  -  1.31 France
 ```
 
 ## Files
@@ -73,7 +76,7 @@ Avg goals: Argentina 1.34  -  1.28 France
 | `model.py`     | The Poisson model + Poisson sampler + single-match simulation. |
 | `teams.py`     | Team ratings and groups (edit to use your own data).           |
 | `simulator.py` | Monte-Carlo drivers: repeat-a-fixture and random-batch.        |
-| `main.py`      | Command-line interface (defaults to 1000 runs).                |
+| `main.py`      | Command-line interface (defaults to 10,000 runs).              |
 | `test_model.py`| Tests (run `python3 test_model.py`).                           |
 
 ## Tests

@@ -4,15 +4,15 @@ Command-line entry point for the World Cup match simulator.
 
 Examples
 --------
-Simulate one fixture 1000 times (probabilities + likely scorelines):
+Simulate one fixture 10,000 times (probabilities + likely scorelines):
 
-    python main.py --home Argentina --away France --runs 1000
+    python main.py --home Argentina --away France
 
-Simulate 1000 random matchups across the field (batch statistics):
+Simulate 10,000 random matchups across the field (batch statistics):
 
-    python main.py --batch --runs 1000
+    python main.py --batch
 
-Both default to 1000 runs to match the task ("simulate 1000 matches").
+Both default to 10,000 runs. Use --runs to change (e.g. --runs 1000).
 """
 
 from __future__ import annotations
@@ -68,7 +68,7 @@ def run_batch(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Simulate World Cup matches with a ratings-based Poisson model.")
-    p.add_argument("--runs", type=int, default=1000, help="number of simulations (default: 1000)")
+    p.add_argument("--runs", type=int, default=10000, help="number of simulations (default: 10000)")
     p.add_argument("--seed", type=int, default=None, help="random seed for reproducibility")
     p.add_argument("--home", default="Argentina", help="first team (fixture mode)")
     p.add_argument("--away", default="France", help="second team (fixture mode)")
