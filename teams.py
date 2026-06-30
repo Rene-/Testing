@@ -21,7 +21,7 @@ class Team:
 # Approximate FIFA points for a representative World Cup field.
 TEAMS: list[Team] = [
     Team("Argentina", 1886, "A"),
-    Team("Mexico", 1700, "A"),
+    Team("Mexico", 1687.48, "A"),  # FIFA points, 11 Jun 2026 (rank 14)
     Team("Poland", 1546, "A"),
     Team("Saudi Arabia", 1419, "A"),
 
@@ -47,7 +47,7 @@ TEAMS: list[Team] = [
 
     Team("Belgium", 1737, "F"),
     Team("Germany", 1717, "F"),
-    Team("Ecuador", 1556, "F"),
+    Team("Ecuador", 1598.52, "F"),  # FIFA points, 11 Jun 2026 (rank 23)
     Team("Qatar", 1400, "F"),
 
     Team("Italy", 1718, "G"),
