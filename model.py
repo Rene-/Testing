@@ -1,0 +1,146 @@
+"""
+Ratings-based Poisson model for World Cup soccer simulation.
+
+This implements the model popularised by Dyte & Clarke, "A ratings based
+Poisson model for World Cup soccer simulation" (Journal of the Operational
+Research Society, 2000). The user referred to it as "David Clement's model";
+the canonical, match-by-match simulatable version in the literature is the
+Dyte & Clarke ratings-based Poisson model, which is what is implemented here.
+
+Core idea
+---------
+The number of goals scored by each team in a match is treated as an
+*independent* Poisson random variable. The mean (lambda) of each team's
+Poisson distribution is driven by:
+
+    * the difference between the two teams' FIFA ratings, and
+    * a venue / home-advantage term.
+
+For a match between team A and team B:
+
+    lambda_A = exp( BASE + RATING_K * (R_A - R_B) + HOME_ADV * H_A )
+    lambda_B = exp( BASE + RATING_K * (R_B - R_A) + HOME_ADV * H_B )
+
+    goals_A ~ Poisson(lambda_A)
+    goals_B ~ Poisson(lambda_B)
+
+where R_x is the FIFA rating of team x and H_x is 1 if team x is playing at
+home (host nation) and 0 otherwise.
+
+The coefficients below reproduce the *structure* of the Dyte & Clarke model.
+Their original fitted constants used the pre-1999 FIFA rating scale; the
+defaults here are calibrated for the modern FIFA points scale (~1100-1900)
+and produce realistic goal expectations and win/draw/loss splits. All three
+are exposed as constructor arguments so the model can be re-calibrated.
+"""
+
+from __future__ import annotations
+
+import math
+import random
+from dataclasses import dataclass
+
+
+# --- Default calibrated coefficients (modern FIFA points scale) -------------
+BASE = math.log(1.35)   # ~1.35 expected goals for an evenly matched team
+RATING_K = 0.0011       # sensitivity of goals to rating difference (per point)
+HOME_ADV = 0.30         # additive log-goals boost for the host nation
+
+
+@dataclass
+class MatchResult:
+    """Outcome of a single simulated match."""
+
+    home: str
+    away: str
+    home_goals: int
+    away_goals: int
+
+    @property
+    def outcome(self) -> str:
+        if self.home_goals > self.away_goals:
+            return "home"
+        if self.home_goals < self.away_goals:
+            return "away"
+        return "draw"
+
+    @property
+    def winner(self) -> str | None:
+        if self.outcome == "home":
+            return self.home
+        if self.outcome == "away":
+            return self.away
+        return None
+
+    def __str__(self) -> str:
+        return f"{self.home} {self.home_goals}-{self.away_goals} {self.away}"
+
+
+def _poisson(lam: float, rng: random.Random) -> int:
+    """Sample from a Poisson distribution using Knuth's algorithm.
+
+    Pure-stdlib so the project has no third-party dependencies. For the
+    goal-count magnitudes involved (lambda well under ~10) this is both
+    exact and fast.
+    """
+    if lam <= 0:
+        return 0
+    target = math.exp(-lam)
+    k = 0
+    p = 1.0
+    while True:
+        k += 1
+        p *= rng.random()
+        if p <= target:
+            return k - 1
+
+
+class PoissonModel:
+    """The ratings-based Poisson match model (Dyte & Clarke style)."""
+
+    def __init__(
+        self,
+        base: float = BASE,
+        rating_k: float = RATING_K,
+        home_adv: float = HOME_ADV,
+        seed: int | None = None,
+    ) -> None:
+        self.base = base
+        self.rating_k = rating_k
+        self.home_adv = home_adv
+        self.rng = random.Random(seed)
+
+    def expected_goals(
+        self,
+        rating_for: float,
+        rating_against: float,
+        home: bool = False,
+    ) -> float:
+        """Expected goals (lambda) for a team given the rating gap and venue."""
+        log_lambda = self.base + self.rating_k * (rating_for - rating_against)
+        if home:
+            log_lambda += self.home_adv
+        return math.exp(log_lambda)
+
+    def simulate_match(
+        self,
+        home_name: str,
+        home_rating: float,
+        away_name: str,
+        away_rating: float,
+        home_is_host: bool = False,
+    ) -> MatchResult:
+        """Simulate one match and return the scoreline.
+
+        By convention the first team is the nominal "home" team; set
+        ``home_is_host`` only for a genuine host-nation advantage (e.g. a
+        World Cup host). Neutral-venue knockout games leave it False.
+        """
+        lam_home = self.expected_goals(home_rating, away_rating, home=home_is_host)
+        lam_away = self.expected_goals(away_rating, home_rating, home=False)
+        return MatchResult(
+            home=home_name,
+            away=away_name,
+            home_goals=_poisson(lam_home, self.rng),
+            away_goals=_poisson(lam_away, self.rng),
+        )
