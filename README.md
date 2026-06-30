@@ -78,6 +78,7 @@ Avg goals: Argentina 1.39  -  1.31 France
 | `simulator.py` | Monte-Carlo drivers: repeat-a-fixture and random-batch.        |
 | `main.py`      | Command-line interface (defaults to 10,000 runs).              |
 | `test_model.py`| Tests (run `python3 test_model.py`).                           |
+| `web/`         | React front end (browser UI; see `web/README.md`).             |
 
 ## Tests
 
