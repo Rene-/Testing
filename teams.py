@@ -37,7 +37,7 @@ TEAMS: list[Team] = [
 
     Team("England", 1819, "D"),
     Team("Netherlands", 1745, "D"),
-    Team("USA", 1648, "D"),
+    Team("USA", 1671.23, "D"),  # FIFA points, 11 Jun 2026 (rank 17)
     Team("Australia", 1488, "D"),
 
     Team("Brazil", 1776, "E"),
@@ -54,6 +54,8 @@ TEAMS: list[Team] = [
     Team("Uruguay", 1639, "G"),
     Team("Colombia", 1690, "G"),
     Team("Nigeria", 1503, "G"),
+
+    Team("Bosnia and Herzegovina", 1387.22, "B"),  # FIFA points, 11 Jun 2026 (rank 64)
 
     Team("Denmark", 1666, "H"),
     Team("Mexico B", 1600, "H"),
