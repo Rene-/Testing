@@ -17,7 +17,7 @@ export const TEAMS = [
   { name: "Morocco", rating: 1694, group: "C" },
   { name: "South Korea", rating: 1575, group: "C" },
 
-  { name: "England", rating: 1819, group: "D" },
+  { name: "England", rating: 1840.46, group: "D" }, // FIFA points, 11 Jun 2026 (rank 4)
   { name: "Netherlands", rating: 1745, group: "D" },
   { name: "USA", rating: 1671.23, group: "D" }, // FIFA points, 11 Jun 2026 (rank 17)
   { name: "Australia", rating: 1488, group: "D" },

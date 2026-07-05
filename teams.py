@@ -35,7 +35,7 @@ TEAMS: list[Team] = [
     Team("Morocco", 1694, "C"),
     Team("South Korea", 1575, "C"),
 
-    Team("England", 1819, "D"),
+    Team("England", 1840.46, "D"),  # FIFA points, 11 Jun 2026 (rank 4)
     Team("Netherlands", 1745, "D"),
     Team("USA", 1671.23, "D"),  # FIFA points, 11 Jun 2026 (rank 17)
     Team("Australia", 1488, "D"),
