@@ -72,6 +72,33 @@ France win                   35.4%  (3542)
 Avg goals: Argentina 1.39  -  1.31 France
 ```
 
+## Backtest against the 2026 Round of 16
+
+`scripts/backtest.py` scores model variants against the actual 2026 World Cup
+Round of 16 (8 matches, 90-minute results, exact grid probabilities):
+
+| Variant                          | Brier | Log loss | Accuracy |
+|----------------------------------|-------|----------|----------|
+| Uniform ⅓ baseline               | 0.667 | 1.099    | –        |
+| Legacy hand-set coefficients     | 0.532 | 0.910    | 5/8      |
+| **Elo-anchored (default)**       | **0.496** | **0.863** | 5/8 |
+| Elo-anchored + live ratings      | 0.500 | 0.865    | 5/8      |
+| Elo-anchored + Dixon–Coles −0.10 | 0.506 | 0.876    | 5/8      |
+
+Findings (n=8, so treat differences cautiously):
+- Every variant clearly beats the uniform baseline — the ratings carry signal.
+- The Elo-anchored calibration beats the legacy hand-set coefficients on both
+  Brier and log loss; it is the default.
+- Live in-tournament ratings performed the same as the official 11-June
+  points; both are supported (`--ratings live`).
+- The Dixon–Coles draw correction did not help on this knockout sample
+  (1 draw in 8 matches); the default is `rho = 0`, with `--rho -0.1`
+  available.
+- The two modal misses were Norway beating Brazil (a genuine upset) and
+  Belgium 4–1 over the USA (host advantage overestimated on this occasion).
+- Venue matters for host advantage: Canada's R16 tie was in Houston, so no
+  home boost applied (`--neutral` covers such cases).
+
 ## Files
 
 | File           | Purpose                                                        |

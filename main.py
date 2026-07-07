@@ -29,13 +29,19 @@ def _pct(x: float) -> str:
 
 
 def run_fixture(args: argparse.Namespace) -> None:
-    model = PoissonModel(seed=args.seed)
+    model = PoissonModel(rho=args.rho, seed=args.seed)
     home = by_name(args.home)
     away = by_name(args.away)
-    stats = simulate_fixture(model, home, away, n=args.runs)
+    stats = simulate_fixture(
+        model, home, away, n=args.runs,
+        rating_source=args.ratings, neutral=args.neutral,
+    )
 
-    print(f"\nRatings-based Poisson model  —  {stats.n} simulations")
-    print(f"{home.name} (rating {home.rating:g}) vs {away.name} (rating {away.rating:g})")
+    def shown_rating(t):
+        return t.live if args.ratings == "live" and t.live is not None else t.rating
+
+    print(f"\nRatings-based Poisson model  —  {stats.n} simulations  ({args.ratings} ratings)")
+    print(f"{home.name} (rating {shown_rating(home):g}) vs {away.name} (rating {shown_rating(away):g})")
     print("-" * 56)
     print(f"{home.name + ' win':<28}{_pct(stats.p_home)}  ({stats.home_wins})")
     print(f"{'Draw':<28}{_pct(stats.p_draw)}  ({stats.draws})")
@@ -74,6 +80,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--away", default="France", help="second team (fixture mode)")
     p.add_argument("--batch", action="store_true",
                    help="simulate random matchups across the field instead of one fixture")
+    p.add_argument("--ratings", choices=["official", "live"], default="official",
+                   help="rating source: official 11-Jun FIFA points or live in-tournament points")
+    p.add_argument("--neutral", action="store_true",
+                   help="suppress host advantage (co-host playing outside its own country)")
+    p.add_argument("--rho", type=float, default=0.0,
+                   help="Dixon-Coles low-score correction (0 = independent Poisson; try -0.1)")
     p.add_argument("--list-teams", action="store_true", help="list available teams and exit")
     return p
 

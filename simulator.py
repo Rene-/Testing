@@ -64,18 +64,32 @@ class FixtureStats:
         return self.scorelines.most_common(top)
 
 
+def _rating(team: Team, source: str) -> float:
+    if source == "live" and team.live is not None:
+        return team.live
+    return team.rating
+
+
 def simulate_fixture(
     model: PoissonModel,
     home: Team,
     away: Team,
     n: int = 1000,
+    rating_source: str = "official",
+    neutral: bool = False,
 ) -> FixtureStats:
-    """Simulate the same fixture ``n`` times to estimate its distribution."""
+    """Simulate the same fixture ``n`` times to estimate its distribution.
+
+    Host advantage applies when the home team is a co-host — pass
+    ``neutral=True`` when a co-host is playing outside its own country
+    (e.g. Canada's 2026 R16 tie was in Houston).
+    """
     stats = FixtureStats(home=home.name, away=away.name, n=n)
-    host_advantage = home.name in HOSTS
+    host_advantage = home.name in HOSTS and not neutral
+    rh, ra = _rating(home, rating_source), _rating(away, rating_source)
     for _ in range(n):
         result = model.simulate_match(
-            home.name, home.rating, away.name, away.rating, home_is_host=host_advantage
+            home.name, rh, away.name, ra, home_is_host=host_advantage
         )
         stats.add(result)
     return stats
@@ -126,3 +140,11 @@ def simulate_random_matches(
         )
         batch.add(result)
     return batch
+
+
+__all__ = [
+    "BatchStats",
+    "FixtureStats",
+    "simulate_fixture",
+    "simulate_random_matches",
+]

@@ -39,10 +39,13 @@ RATINGS: dict[str, dict[str, float | None]] = {
     "Brazil":      {"official": 1765.34, "live": 1804.92},
     "England":     {"official": 1840.46, "live": 1850.97},
     "Mexico":      {"official": 1687.48, "live": 1754.30},
-    "Spain":       {"official": None, "live": None},
-    "Portugal":    {"official": None, "live": None},
-    "Belgium":     {"official": None, "live": None},
-    "USA":         {"official": 1671.23, "live": None},
+    "Spain":       {"official": 1874.71, "live": 1892.28},
+    "Portugal":    {"official": 1767.85, "live": 1787.85},
+    # Belgium's exact official 11-Jun total was not published in accessible
+    # sources (rank 9 confirmed); 1733.93 is their earliest in-tournament
+    # live figure and the closest available proxy for the official baseline.
+    "Belgium":     {"official": 1733.93, "live": 1756.51},
+    "USA":         {"official": 1671.23, "live": 1690.33},
     "Argentina":   {"official": 1877.27, "live": 1913.71},
     "Egypt":       {"official": 1562.37, "live": 1597.04},
     "Switzerland": {"official": 1650.00, "live": 1696.30},
@@ -64,8 +67,8 @@ FIXTURES: list[dict] = [
     {"home": "Spain", "away": "Portugal", "score": (1, 0), "host": False},
     {"home": "USA", "away": "Belgium", "score": (1, 4), "host": True},
     {"home": "Argentina", "away": "Egypt", "score": (3, 2), "host": False},
-    # Still in progress at research time (0-0 late); filled in when final.
-    {"home": "Switzerland", "away": "Colombia", "score": None, "host": False},
+    # 0-0 after 90 minutes (went to extra time; 90' score is what we grade).
+    {"home": "Switzerland", "away": "Colombia", "score": (0, 0), "host": False},
 ]
 
 
@@ -129,6 +132,7 @@ VARIANTS = [
 
 
 def main() -> None:
+    _validate_data()
     print(f"{'variant':<38} {'Brier':>7} {'LogLoss':>8} {'Acc':>6} {'xG MAE':>7}")
     print("-" * 72)
     print(f"{'uniform 1/3 baseline':<38} {0.667:>7.3f} {1.099:>8.3f} {'-':>6} {'-':>7}")
