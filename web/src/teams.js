@@ -24,7 +24,7 @@ export const TEAMS = [
 
   { name: "Brazil", rating: 1776, group: "E" },
   { name: "Portugal", rating: 1761, group: "E" },
-  { name: "Switzerland", rating: 1644, group: "E" },
+  { name: "Switzerland", rating: 1650, group: "E" }, // FIFA points, 11 Jun 2026 (rank 19)
   { name: "Ghana", rating: 1450, group: "E" },
 
   { name: "Belgium", rating: 1737, group: "F" },
@@ -34,7 +34,7 @@ export const TEAMS = [
 
   { name: "Italy", rating: 1718, group: "G" },
   { name: "Uruguay", rating: 1639, group: "G" },
-  { name: "Colombia", rating: 1690, group: "G" },
+  { name: "Colombia", rating: 1698.35, group: "G" }, // FIFA points, 11 Jun 2026 (rank 13)
   { name: "Nigeria", rating: 1503, group: "G" },
 
   { name: "Bosnia and Herzegovina", rating: 1387.22, group: "B" }, // FIFA points, 11 Jun 2026 (rank 64)
