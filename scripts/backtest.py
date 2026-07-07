@@ -69,6 +69,16 @@ FIXTURES: list[dict] = [
     {"home": "Argentina", "away": "Egypt", "score": (3, 2), "host": False},
     # 0-0 after 90 minutes (went to extra time; 90' score is what we grade).
     {"home": "Switzerland", "away": "Colombia", "score": (0, 0), "host": False},
+
+    # --- Quarter-finals (all neutral US venues; co-hosts eliminated). ------
+    # Forecasts pre-registered in scripts/predict_qf.py before kickoff.
+    # Fill 90-minute scores as the games are played; QF4's opponent comes
+    # from the Switzerland-Colombia winner (delete the loser's line).
+    {"home": "France", "away": "Morocco", "score": None, "host": False},
+    {"home": "Spain", "away": "Belgium", "score": None, "host": False},
+    {"home": "Norway", "away": "England", "score": None, "host": False},
+    {"home": "Argentina", "away": "Switzerland", "score": None, "host": False},
+    {"home": "Argentina", "away": "Colombia", "score": None, "host": False},
 ]
 
 

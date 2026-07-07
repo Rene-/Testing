@@ -1,0 +1,24 @@
+
+=== Elo-anchored, official (default) ===
+fixture                       p(home)  p(draw)  p(away)           xG
+France v Morocco           47.9%    24.9%    27.2%  1.60-1.14  (Jul 9, Boston)
+Spain v Belgium           50.5%    24.4%    25.1%  1.66-1.10  (Jul 10, Los Angeles)
+Norway v England           15.4%    20.3%    64.2%  0.89-2.05  (Jul 11, Miami)
+Argentina v Switzerland       59.0%    22.2%    18.9%  1.89-0.97  (Jul 12, Kansas City)
+Argentina v Colombia          54.3%    23.5%    22.2%  1.76-1.04  (Jul 12, Kansas City)
+
+=== Elo-anchored, live ===
+fixture                       p(home)  p(draw)  p(away)           xG
+France v Morocco           49.2%    24.6%    26.2%  1.63-1.12  (Jul 9, Boston)
+Spain v Belgium           50.0%    24.5%    25.5%  1.65-1.11  (Jul 10, Los Angeles)
+Norway v England           18.5%    22.0%    59.5%  0.96-1.90  (Jul 11, Miami)
+Argentina v Switzerland       58.0%    22.4%    19.5%  1.86-0.98  (Jul 12, Kansas City)
+Argentina v Colombia          53.8%    23.6%    22.6%  1.74-1.04  (Jul 12, Kansas City)
+
+=== Elo-anchored, live, DC rho=-0.10 ===
+fixture                       p(home)  p(draw)  p(away)           xG
+France v Morocco           48.1%    27.0%    25.0%  1.63-1.12  (Jul 9, Boston)
+Spain v Belgium           48.9%    26.8%    24.3%  1.65-1.11  (Jul 10, Los Angeles)
+Norway v England           17.5%    24.1%    58.5%  0.96-1.90  (Jul 11, Miami)
+Argentina v Switzerland       56.9%    24.6%    18.5%  1.86-0.98  (Jul 12, Kansas City)
+Argentina v Colombia          52.6%    25.9%    21.5%  1.74-1.04  (Jul 12, Kansas City)
