@@ -43,6 +43,60 @@ export function poisson(lam, rng) {
   }
 }
 
+// Dixon-Coles (1997) low-score dependence correction. Negative rho shifts
+// probability onto 0-0 and 1-1 draws, matching observed low-score rates.
+export const RHO = -0.1;
+const MAX_GOALS = 12;
+
+function tau(x, y, lamH, lamA, rho) {
+  if (x === 0 && y === 0) return 1 - lamH * lamA * rho;
+  if (x === 0 && y === 1) return 1 + lamH * rho;
+  if (x === 1 && y === 0) return 1 + lamA * rho;
+  if (x === 1 && y === 1) return 1 - rho;
+  return 1;
+}
+
+// Joint P(home=i, away=j) grid with the Dixon-Coles adjustment, renormalised.
+export function scoreGrid(lamH, lamA, rho = RHO) {
+  const n = MAX_GOALS + 1;
+  const ph = [];
+  const pa = [];
+  let fh = 1;
+  let fa = 1;
+  for (let i = 0; i < n; i++) {
+    if (i > 0) {
+      fh *= i;
+      fa *= i;
+    }
+    ph.push((Math.exp(-lamH) * lamH ** i) / fh);
+    pa.push((Math.exp(-lamA) * lamA ** i) / fa);
+  }
+  const grid = [];
+  let total = 0;
+  for (let i = 0; i < n; i++) {
+    const row = [];
+    for (let j = 0; j < n; j++) {
+      const p = ph[i] * pa[j] * tau(i, j, lamH, lamA, rho);
+      row.push(p);
+      total += p;
+    }
+    grid.push(row);
+  }
+  return grid.map((row) => row.map((p) => p / total));
+}
+
+function sampleGrid(grid, rng) {
+  const u = rng();
+  let acc = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      acc += grid[i][j];
+      if (u <= acc) return [i, j];
+    }
+  }
+  return [MAX_GOALS, MAX_GOALS];
+}
+
 export function expectedGoals(ratingFor, ratingAgainst, home = false) {
   let logLambda = BASE + RATING_K * (ratingFor - ratingAgainst);
   if (home) logLambda += HOME_ADV;
@@ -50,8 +104,9 @@ export function expectedGoals(ratingFor, ratingAgainst, home = false) {
 }
 
 // Run `n` simulations of a single fixture and aggregate the results.
+// opts.rho controls the Dixon-Coles correction (0 = independent Poisson).
 export function simulateFixture(home, away, n = 10000, opts = {}) {
-  const { seed = null, homeIsHost = false } = opts;
+  const { seed = null, homeIsHost = false, rho = RHO } = opts;
   const rng = makeRng(seed);
 
   let homeWins = 0;
@@ -63,10 +118,16 @@ export function simulateFixture(home, away, n = 10000, opts = {}) {
 
   const lamHome = expectedGoals(home.rating, away.rating, homeIsHost);
   const lamAway = expectedGoals(away.rating, home.rating, false);
+  const grid = rho === 0 ? null : scoreGrid(lamHome, lamAway, rho);
 
   for (let i = 0; i < n; i++) {
-    const hg = poisson(lamHome, rng);
-    const ag = poisson(lamAway, rng);
+    let hg, ag;
+    if (grid) {
+      [hg, ag] = sampleGrid(grid, rng);
+    } else {
+      hg = poisson(lamHome, rng);
+      ag = poisson(lamAway, rng);
+    }
     if (hg > ag) homeWins++;
     else if (ag > hg) awayWins++;
     else draws++;

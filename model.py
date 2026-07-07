@@ -100,19 +100,64 @@ def _poisson(lam: float, rng: random.Random) -> int:
 
 
 class PoissonModel:
-    """The ratings-based Poisson match model (Dyte & Clarke style)."""
+    """The ratings-based Poisson match model (Dyte & Clarke style).
+
+    ``rho`` enables the Dixon & Coles (1997) low-score dependence
+    correction: the joint probability of scores (0,0), (1,0), (0,1) and
+    (1,1) is scaled by tau(x, y), which for negative rho shifts mass onto
+    0-0 and 1-1 draws — fixing the independent-Poisson model's known
+    underestimate of low-scoring draws. rho = 0 recovers independence.
+    """
+
+    #: Scores above this are vanishingly likely; the joint grid is truncated
+    #: here and renormalised.
+    MAX_GOALS = 12
 
     def __init__(
         self,
         base: float = BASE,
         rating_k: float = RATING_K,
         home_adv: float = HOME_ADV,
+        rho: float = 0.0,
         seed: int | None = None,
     ) -> None:
         self.base = base
         self.rating_k = rating_k
         self.home_adv = home_adv
+        self.rho = rho
         self.rng = random.Random(seed)
+
+    def _tau(self, x: int, y: int, lam_h: float, lam_a: float) -> float:
+        if x == 0 and y == 0:
+            return 1.0 - lam_h * lam_a * self.rho
+        if x == 0 and y == 1:
+            return 1.0 + lam_h * self.rho
+        if x == 1 and y == 0:
+            return 1.0 + lam_a * self.rho
+        if x == 1 and y == 1:
+            return 1.0 - self.rho
+        return 1.0
+
+    def score_grid(self, lam_h: float, lam_a: float) -> list[list[float]]:
+        """Joint P(home=x, away=y) grid with the Dixon-Coles adjustment."""
+        n = self.MAX_GOALS + 1
+        ph = [math.exp(-lam_h) * lam_h**i / math.factorial(i) for i in range(n)]
+        pa = [math.exp(-lam_a) * lam_a**j / math.factorial(j) for j in range(n)]
+        grid = [
+            [ph[i] * pa[j] * self._tau(i, j, lam_h, lam_a) for j in range(n)]
+            for i in range(n)
+        ]
+        total = sum(sum(row) for row in grid)
+        return [[p / total for p in row] for row in grid]
+
+    def outcome_probabilities(
+        self, lam_h: float, lam_a: float
+    ) -> tuple[float, float, float]:
+        """Exact (p_home_win, p_draw, p_away_win) from the score grid."""
+        grid = self.score_grid(lam_h, lam_a)
+        win = sum(grid[i][j] for i in range(len(grid)) for j in range(i))
+        draw = sum(grid[i][i] for i in range(len(grid)))
+        return win, draw, 1.0 - win - draw
 
     def expected_goals(
         self,
@@ -142,9 +187,27 @@ class PoissonModel:
         """
         lam_home = self.expected_goals(home_rating, away_rating, home=home_is_host)
         lam_away = self.expected_goals(away_rating, home_rating, home=False)
+        if self.rho == 0.0:
+            hg, ag = _poisson(lam_home, self.rng), _poisson(lam_away, self.rng)
+        else:
+            hg, ag = self._sample_grid(lam_home, lam_away)
         return MatchResult(
-            home=home_name,
-            away=away_name,
-            home_goals=_poisson(lam_home, self.rng),
-            away_goals=_poisson(lam_away, self.rng),
+            home=home_name, away=away_name, home_goals=hg, away_goals=ag
         )
+
+    def _sample_grid(self, lam_h: float, lam_a: float) -> tuple[int, int]:
+        """Sample a scoreline from the Dixon-Coles joint distribution."""
+        key = (lam_h, lam_a)
+        if not hasattr(self, "_grid_cache"):
+            self._grid_cache: dict = {}
+        if key not in self._grid_cache:
+            self._grid_cache[key] = self.score_grid(lam_h, lam_a)
+        grid = self._grid_cache[key]
+        u = self.rng.random()
+        acc = 0.0
+        for i, row in enumerate(grid):
+            for j, p in enumerate(row):
+                acc += p
+                if u <= acc:
+                    return i, j
+        return self.MAX_GOALS, self.MAX_GOALS
