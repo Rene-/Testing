@@ -32,8 +32,11 @@ individual match scores, so it does not fit "simulate 1000 matches.")
 
 The coefficients reproduce the *structure* of the Dyte & Clarke model.
 Their original constants used the pre-1999 FIFA scale; the defaults in
-`model.py` are calibrated for the modern FIFA points scale (~1100–1900) and
-are exposed as constructor arguments so you can re-calibrate freely.
+`model.py` are **Elo-anchored**: `scripts/calibrate.py` fits `RATING_K` so the
+model's implied expected score `P(win) + 0.5·P(draw)` matches FIFA's own Elo
+curve `We = 1/(10^(−gap/600)+1)` (the modern FIFA ranking is Elo-based), and
+fits `HOME_ADV` to the conventional +100 Elo home bonus. All three constants
+remain constructor arguments so you can re-fit freely.
 
 ## Usage
 

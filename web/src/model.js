@@ -7,9 +7,12 @@
 // Each team's goals are independent Poisson variables driven by the FIFA
 // rating gap plus a host-nation advantage.
 
+// RATING_K and HOME_ADV are fitted (scripts/calibrate.py) so the implied
+// expected score matches FIFA's Elo curve We = 1/(10^(-gap/600)+1), with
+// HOME_ADV equivalent to the conventional +100 Elo home bonus.
 export const BASE = Math.log(1.35); // ~1.35 expected goals for an even match
-export const RATING_K = 0.0011; // goal sensitivity per rating point
-export const HOME_ADV = 0.3; // additive log-goals boost for the host
+export const RATING_K = 0.001474; // goal sensitivity per rating point
+export const HOME_ADV = 0.284; // additive log-goals boost for the host
 
 // Seedable RNG (mulberry32) so runs are reproducible when a seed is given.
 // Falls back to Math.random when no seed is provided.

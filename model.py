@@ -29,9 +29,9 @@ home (host nation) and 0 otherwise.
 
 The coefficients below reproduce the *structure* of the Dyte & Clarke model.
 Their original fitted constants used the pre-1999 FIFA rating scale; the
-defaults here are calibrated for the modern FIFA points scale (~1100-1900)
-and produce realistic goal expectations and win/draw/loss splits. All three
-are exposed as constructor arguments so the model can be re-calibrated.
+defaults here are anchored to the modern (post-2018, Elo-based) FIFA points
+scale by scripts/calibrate.py — see the comment above the constants. All
+three are exposed as constructor arguments so the model can be re-fitted.
 """
 
 from __future__ import annotations
@@ -42,9 +42,13 @@ from dataclasses import dataclass
 
 
 # --- Default calibrated coefficients (modern FIFA points scale) -------------
+# RATING_K and HOME_ADV are fitted by scripts/calibrate.py so the model's
+# implied expected score P(win) + 0.5*P(draw) matches FIFA's own Elo curve
+# We = 1/(10^(-gap/600)+1), with HOME_ADV equivalent to the conventional
+# +100 Elo home bonus. BASE is fixed to give ~2.7 total goals per match.
 BASE = math.log(1.35)   # ~1.35 expected goals for an evenly matched team
-RATING_K = 0.0011       # sensitivity of goals to rating difference (per point)
-HOME_ADV = 0.30         # additive log-goals boost for the host nation
+RATING_K = 0.001474     # sensitivity of goals to rating difference (per point)
+HOME_ADV = 0.2840       # additive log-goals boost for the host nation
 
 
 @dataclass
