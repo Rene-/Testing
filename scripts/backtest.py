@@ -35,10 +35,10 @@ RATINGS: dict[str, dict[str, float | None]] = {
     "Canada":      {"official": 1559.48, "live": 1571.34},
     "France":      {"official": 1870.70, "live": 1916.24},
     "Paraguay":    {"official": 1505.35, "live": 1542.48},
-    "Norway":      {"official": None, "live": None},
-    "Brazil":      {"official": None, "live": None},
-    "England":     {"official": 1840.46, "live": None},
-    "Mexico":      {"official": 1687.48, "live": None},
+    "Norway":      {"official": 1557.44, "live": 1617.67},
+    "Brazil":      {"official": 1765.34, "live": 1804.92},
+    "England":     {"official": 1840.46, "live": 1850.97},
+    "Mexico":      {"official": 1687.48, "live": 1754.30},
     "Spain":       {"official": None, "live": None},
     "Portugal":    {"official": None, "live": None},
     "Belgium":     {"official": None, "live": None},
@@ -53,23 +53,31 @@ RATINGS: dict[str, dict[str, float | None]] = {
 # "home" is listed first; host=True when that team is a co-host playing on
 # home soil. Scores must be the 90-minute score (knockout draws then go to
 # ET/pens). score=None = result not yet verified; the script refuses to run.
+# All seven completed matches ended in regulation (90' score == final).
+# Canada-Morocco was played in Houston, USA -> Canada NOT on home soil.
+# USA-Belgium was in Seattle (USA at home); Mexico-England at the Azteca.
 FIXTURES: list[dict] = [
-    {"home": "Canada", "away": "Morocco", "score": None, "host": True},
-    {"home": "France", "away": "Paraguay", "score": None, "host": False},
-    {"home": "Norway", "away": "Brazil", "score": None, "host": False},
+    {"home": "Canada", "away": "Morocco", "score": (0, 3), "host": False},
+    {"home": "France", "away": "Paraguay", "score": (1, 0), "host": False},
+    {"home": "Norway", "away": "Brazil", "score": (2, 1), "host": False},
     {"home": "Mexico", "away": "England", "score": (2, 3), "host": True},
-    {"home": "Spain", "away": "Portugal", "score": None, "host": False},
-    {"home": "USA", "away": "Belgium", "score": None, "host": True},
-    {"home": "Argentina", "away": "Egypt", "score": None, "host": False},
+    {"home": "Spain", "away": "Portugal", "score": (1, 0), "host": False},
+    {"home": "USA", "away": "Belgium", "score": (1, 4), "host": True},
+    {"home": "Argentina", "away": "Egypt", "score": (3, 2), "host": False},
+    # Still in progress at research time (0-0 late); filled in when final.
     {"home": "Switzerland", "away": "Colombia", "score": None, "host": False},
 ]
 
 
-def _assert_data_complete() -> None:
+def _validate_data() -> None:
+    """Refuse to run on unverified ratings; skip unplayed fixtures loudly."""
     missing = [t for t, r in RATINGS.items() if r["official"] is None or r["live"] is None]
-    missing += [f"{f['home']}-{f['away']}" for f in FIXTURES if f["score"] is None]
     if missing:
-        raise SystemExit(f"Unverified data remains, refusing to run: {missing}")
+        raise SystemExit(f"Unverified ratings remain, refusing to run: {missing}")
+    pending = [f for f in FIXTURES if f["score"] is None]
+    for f in pending:
+        print(f"NOTE: skipping unplayed fixture {f['home']} vs {f['away']}\n")
+    FIXTURES[:] = [f for f in FIXTURES if f["score"] is not None]
 
 
 def outcome_index(hg: int, ag: int) -> int:
