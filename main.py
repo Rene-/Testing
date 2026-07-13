@@ -84,8 +84,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help="rating source: official 11-Jun FIFA points or live in-tournament points")
     p.add_argument("--neutral", action="store_true",
                    help="suppress host advantage (co-host playing outside its own country)")
-    p.add_argument("--rho", type=float, default=0.0,
-                   help="Dixon-Coles low-score correction (0 = independent Poisson; try -0.1)")
+    p.add_argument("--rho", type=float, default=-0.10,
+                   help="Dixon-Coles low-score correction (default -0.10 per the "
+                        "knockout backtest; 0 = independent Poisson)")
     p.add_argument("--list-teams", action="store_true", help="list available teams and exit")
     return p
 

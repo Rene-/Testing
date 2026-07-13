@@ -44,10 +44,10 @@ export function poisson(lam, rng) {
 }
 
 // Dixon-Coles (1997) low-score dependence correction. Negative rho shifts
-// probability onto 0-0 and 1-1 draws. Default 0 (independent Poisson): a
-// backtest against the 2026 Round of 16 (scripts/backtest.py) found no
-// support for negative rho on knockout-round data.
-export const RHO = 0;
+// probability onto 0-0 and 1-1 draws. Default -0.10: the extended 12-match
+// knockout backtest (scripts/backtest.py, R16 + quarter-finals) weakly
+// favours it, consistent with the club-football literature.
+export const RHO = -0.1;
 const MAX_GOALS = 12;
 
 function tau(x, y, lamH, lamA, rho) {

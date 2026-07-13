@@ -71,14 +71,14 @@ FIXTURES: list[dict] = [
     {"home": "Switzerland", "away": "Colombia", "score": (0, 0), "host": False},
 
     # --- Quarter-finals (all neutral US venues; co-hosts eliminated). ------
-    # Forecasts pre-registered in scripts/predict_qf.py before kickoff.
-    # Fill 90-minute scores as the games are played; QF4's opponent comes
-    # from the Switzerland-Colombia winner (delete the loser's line).
-    {"home": "France", "away": "Morocco", "score": None, "host": False},
-    {"home": "Spain", "away": "Belgium", "score": None, "host": False},
-    {"home": "Norway", "away": "England", "score": None, "host": False},
-    {"home": "Argentina", "away": "Switzerland", "score": None, "host": False},
-    {"home": "Argentina", "away": "Colombia", "score": None, "host": False},
+    # Forecasts were pre-registered in scripts/predict_qf.py before kickoff.
+    # Norway-England and Argentina-Switzerland were drawn at 90 minutes and
+    # decided in extra time (England 2-1, Argentina 3-1); we grade the
+    # 90-minute score. Switzerland had beaten Colombia in the R16 tie.
+    {"home": "France", "away": "Morocco", "score": (2, 0), "host": False},
+    {"home": "Spain", "away": "Belgium", "score": (2, 1), "host": False},
+    {"home": "Norway", "away": "England", "score": (1, 1), "host": False},
+    {"home": "Argentina", "away": "Switzerland", "score": (1, 1), "host": False},
 ]
 
 

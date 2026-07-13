@@ -72,32 +72,38 @@ France win                   35.4%  (3542)
 Avg goals: Argentina 1.39  -  1.31 France
 ```
 
-## Backtest against the 2026 Round of 16
+## Backtest against the 2026 knockout rounds
 
 `scripts/backtest.py` scores model variants against the actual 2026 World Cup
-Round of 16 (8 matches, 90-minute results, exact grid probabilities):
+Round of 16 + quarter-finals (12 matches, 90-minute results, exact grid
+probabilities). Quarter-final forecasts were pre-registered before kickoff
+(`scripts/predict_qf.py`, committed 7 July).
 
 | Variant                          | Brier | Log loss | Accuracy |
 |----------------------------------|-------|----------|----------|
 | Uniform ⅓ baseline               | 0.667 | 1.099    | –        |
-| Legacy hand-set coefficients     | 0.532 | 0.910    | 5/8      |
-| **Elo-anchored (default)**       | **0.496** | **0.863** | 5/8 |
-| Elo-anchored + live ratings      | 0.500 | 0.865    | 5/8      |
-| Elo-anchored + Dixon–Coles −0.10 | 0.506 | 0.876    | 5/8      |
+| Legacy hand-set coefficients     | 0.585 | 0.980    | 7/12     |
+| Elo-anchored, official           | 0.567 | 0.952    | 7/12     |
+| Elo-anchored, live               | 0.561 | 0.944    | 7/12     |
+| **Elo-anchored, live, DC −0.10** | **0.560** | **0.940** | 7/12 |
 
-Findings (n=8, so treat differences cautiously):
-- Every variant clearly beats the uniform baseline — the ratings carry signal.
-- The Elo-anchored calibration beats the legacy hand-set coefficients on both
-  Brier and log loss; it is the default.
-- Live in-tournament ratings performed the same as the official 11-June
-  points; both are supported (`--ratings live`).
-- The Dixon–Coles draw correction did not help on this knockout sample
-  (1 draw in 8 matches); the default is `rho = 0`, with `--rho -0.1`
-  available.
-- The two modal misses were Norway beating Brazil (a genuine upset) and
-  Belgium 4–1 over the USA (host advantage overestimated on this occasion).
-- Venue matters for host advantage: Canada's R16 tie was in Houston, so no
-  home boost applied (`--neutral` covers such cases).
+Findings (n=12; only the legacy-vs-anchored gap is decisive):
+- The Elo-anchored calibration beats the legacy hand-set coefficients in
+  BOTH the 8-match and 12-match samples — the one robust conclusion.
+- The Dixon–Coles verdict flipped with the sample: it hurt on 8 matches
+  (1 draw) and helps on 12 (3 draws, 25% — right at the model's forecast
+  rate). With the literature prior for negative rho now weakly confirmed,
+  the CLI default is `--rho -0.10` (the `PoissonModel` class default stays
+  0 = pure Dyte–Clarke; the rho sweep is nearly flat from −0.05 to −0.20).
+- Live ratings edged official ratings on the extended sample (0.944 vs
+  0.952) — within noise, but fresher information costs nothing when
+  available (`--ratings live`; teams without a live figure fall back).
+- Modal accuracy understates draw-aware models: no model ever makes "draw"
+  its modal pick, and all five misses on the extended sample include the
+  three 90-minute draws. Log loss is the honest metric.
+- Other learnings: Norway beating Brazil was a genuine upset; Belgium 4–1
+  USA showed host advantage is no guarantee; venue must be checked per
+  match (Canada's "home" R16 tie was in Houston — `--neutral`).
 
 ## Files
 
